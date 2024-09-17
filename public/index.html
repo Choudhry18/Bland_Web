@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Haskell Interpreter</title>
+</head>
+<body>
+    <h1>Run Your Haskell Code</h1>
+    <form id="codeForm">
+        <textarea id="codeInput" placeholder="Write your Haskell code here..." rows="10" cols="50"></textarea>
+        <br>
+        <button type="submit">Run Code</button>
+    </form>
+    <h3>Output:</h3>
+    <pre id="output"></pre>
+
+    <script>
+        document.getElementById('codeForm').addEventListener('submit', async (e) => {
+            e.preventDefault(); // Prevent the form from refreshing the page
+
+            const code = document.getElementById('codeInput').value; // Get the code from the textarea
+            const response = await fetch('/run', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code }),
+            });
+            const result = await response.text(); // Get the output
+            document.getElementById('output').textContent = result; // Display the output
+        });
+    </script>
+</body>
+</html>

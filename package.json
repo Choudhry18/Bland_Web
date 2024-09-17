@@ -1,0 +1,19 @@
+{
+  "name": "web-interpreter",
+  "version": "1.0.0",
+  "description": "an applicatin to host web interpreter for British programming langauge",
+  "main": "server.js",
+  "scripts": {
+    "test": "test",
+    "run": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:Choudhry18/Bland_Web.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}
