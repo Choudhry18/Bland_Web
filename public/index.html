@@ -3,30 +3,186 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Haskell Interpreter</title>
+    <title>Bland - A British Language Interpreter</title>
+    <style>
+        /* Dark theme styling */
+        body {
+            background-color: #1e1e1e;
+            color: #c9d1d9;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1, h3 {
+            text-align: center;
+            color: #58a6ff;
+        }
+
+        #container {
+            width: 80%;
+            max-width: 1200px;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 20px;
+            background-color: #0d1117;
+        }
+
+        /* Tab styling */
+        .tab {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+
+        .tab button {
+            background-color: #161b22;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            color: #c9d1d9;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .tab button.active {
+            background-color: #21262d;
+        }
+
+        .tabcontent {
+            display: none;
+        }
+
+        .tabcontent.active {
+            display: block;
+        }
+
+        /* Text area and output styling */
+        textarea, pre {
+            width: 100%;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            padding: 10px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        button[type="submit"] {
+            background-color: #238636;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #2ea043;
+        }
+
+        /* Centering the description */
+        #description {
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 18px;
+            color: #8b949e;
+        }
+    </style>
 </head>
 <body>
-    <h1>Run Your Haskell Code</h1>
-    <form id="codeForm">
-        <textarea id="codeInput" placeholder="Write your Haskell code here..." rows="10" cols="50"></textarea>
-        <br>
-        <button type="submit">Run Code</button>
-    </form>
-    <h3>Output:</h3>
-    <pre id="output"></pre>
+    <h1>Bland - A British Language Interpreter</h1>
+    <div id="container">
+        <div id="description">
+            Write your British code here and see the output instantly. Explore the documentation and view sample code.
+        </div>
+
+        <!-- Tab buttons -->
+        <div class="tab">
+            <button class="active" onclick="openTab(event, 'interpreter')">Interpreter</button>
+            <button onclick="openTab(event, 'documentation')">Documentation</button>
+            <button onclick="openTab(event, 'sampleCode')">Sample Code</button>
+        </div>
+
+        <!-- Tab content -->
+        <div id="interpreter" class="tabcontent active">
+            <form id="codeForm">
+                <textarea id="codeInput" placeholder="Write your British code here..." rows="10"></textarea>
+                <br>
+                <button type="submit">Run Code</button>
+            </form>
+            <h3>Output:</h3>
+            <pre id="output"></pre>
+        </div>
+
+        <div id="documentation" class="tabcontent">
+            <h3>Documentation</h3>
+            <p>This section contains the documentation for the Bland language.</p>
+            <ul>
+                <li>Basic syntax</li>
+                <li>Variables</li>
+                <li>Functions</li>
+                <li>Control flow</li>
+                <li>Examples</li>
+            </ul>
+        </div>
+
+        <div id="sampleCode" class="tabcontent">
+            <h3>Sample Code</h3>
+            <pre>
+# Sample British code
+let x = 5;
+if x > 3:
+    print("Hello, mate!")
+            </pre>
+        </div>
+    </div>
 
     <script>
-        document.getElementById('codeForm').addEventListener('submit', async (e) => {
-            e.preventDefault(); // Prevent the form from refreshing the page
+        // Tab switching function
+        function openTab(evt, tabName) {
+            // Hide all tab contents
+            var tabcontent = document.getElementsByClassName('tabcontent');
+            for (var i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = 'none';
+                tabcontent[i].classList.remove('active');
+            }
 
-            const code = document.getElementById('codeInput').value; // Get the code from the textarea
+            // Remove 'active' class from all tab buttons
+            var tablinks = document.getElementsByClassName('tab');
+            for (var i = 0; i < tablinks.length; i++) {
+                tablinks[i].querySelector('button.active').classList.remove('active');
+            }
+
+            // Show the selected tab
+            document.getElementById(tabName).style.display = 'block';
+            document.getElementById(tabName).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+
+        // Default to showing the interpreter tab
+        document.getElementById('interpreter').style.display = 'block';
+
+        // Form submission handler for running code
+        document.getElementById('codeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const code = document.getElementById('codeInput').value;
             const response = await fetch('/run', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ code }),
             });
-            const result = await response.text(); // Get the output
-            document.getElementById('output').textContent = result; // Display the output
+
+            const result = await response.text();
+            document.getElementById('output').textContent = result;
         });
     </script>
 </body>
