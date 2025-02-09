@@ -1,56 +1,43 @@
-const express = require('express');
-const { spawn } = require('child_process');
-const bodyParser = require('body-parser');
-const path = require('path'); // Import path module
+const express = require("express");
+const http = require("http");
+const WebSocket = require("ws");
+const pty = require("node-pty");
+
 const app = express();
-const port = 3000;
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+const interpreter = "./bland"
+app.use(express.static("public")); // Serves frontend files
 
-// Serve the static files from the public directory
-app.use(express.static('public'));
-
-// Middleware to parse JSON request body
-app.use(bodyParser.json());
-
-// GET endpoint to serve the HTML page
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html')); // Serve the HTML file
+// Create PTY (Pseudo-terminal)
+const shell = process.platform === "win32" ? "cmd.exe" : "bash"; // Use a shell
+const ptyProcess = pty.spawn(interpreter, [], {
+  name: "xterm-color",
+  cols: 80,
+  rows: 30,
+  cwd: process.cwd(),
+  env: process.env,
 });
 
-// POST endpoint to run the Haskell interpreter
-app.post('/run', (req, res) => {
-    const icode = req.body.code; // Get the code from the request body
-    const code = icode.concat("\n", ":quit")
-    // Spawn a new child process to run the interpreter
-    const interpreter = spawn('./bland');
+// Handle WebSocket connections
+wss.on("connection", (ws) => {
+  console.log("Client connected");
 
-    // Send the code to the interpreter's stdin
-    interpreter.stdin.write(code);
-    interpreter.stdin.end();
+  // Send PTY output to the client
+  ptyProcess.on("data", (data) => {
+    ws.send(data);
+  });
 
-    let output = '';
-    let errorOutput = '';
+  // Receive input from the client and send it to the PTY
+  ws.on("message", (msg) => {
+    ptyProcess.write(msg + "\n");
+  });
 
-    // Collect output from the interpreter's stdout
-    interpreter.stdout.on('data', (data) => {
-        output += data;
-    });
-
-    // Collect errors from the interpreter's stderr
-    interpreter.stderr.on('data', (data) => {
-        errorOutput += data;
-    });
-
-    // Handle the process exit
-    interpreter.on('close', (code) => {
-        if (code !== 0) {
-            console.error(`Interpreter error: ${errorOutput}`);
-            return res.status(500).send(`Execution error: ${errorOutput}`);
-        }
-        res.send(output); // Send the output back to the client
-    });
+  ws.on("close", () => {
+    console.log("Client disconnected");
+  });
 });
 
-// Start the server
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+server.listen(3000, () => {
+  console.log("Server running at http://localhost:3000");
 });

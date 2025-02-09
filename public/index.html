@@ -96,6 +96,7 @@
             color: #8b949e;
         }
     </style>
+    <script src="js/main.js" defer></script>
 </head>
 <body>
     <h1>Bland - A British Language Interpreter</h1>
@@ -145,45 +146,5 @@ if x > 3:
         </div>
     </div>
 
-    <script>
-        // Tab switching function
-        function openTab(evt, tabName) {
-            // Hide all tab contents
-            var tabcontent = document.getElementsByClassName('tabcontent');
-            for (var i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].style.display = 'none';
-                tabcontent[i].classList.remove('active');
-            }
-
-            // Remove 'active' class from all tab buttons
-            var tablinks = document.getElementsByClassName('tab');
-            for (var i = 0; i < tablinks.length; i++) {
-                tablinks[i].querySelector('button.active').classList.remove('active');
-            }
-
-            // Show the selected tab
-            document.getElementById(tabName).style.display = 'block';
-            document.getElementById(tabName).classList.add('active');
-            evt.currentTarget.classList.add('active');
-        }
-
-        // Default to showing the interpreter tab
-        document.getElementById('interpreter').style.display = 'block';
-
-        // Form submission handler for running code
-        document.getElementById('codeForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const code = document.getElementById('codeInput').value;
-            const response = await fetch('/run', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code }),
-            });
-
-            const result = await response.text();
-            document.getElementById('output').textContent = result;
-        });
-    </script>
 </body>
 </html>
