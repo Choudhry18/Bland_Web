@@ -5,6 +5,11 @@ const pty = require("node-pty");
 
 const app = express();
 const server = http.createServer(app);
+server.on('upgrade', (request, socket, head) => {
+  wss.handleUpgrade(request, socket, head, (ws) => {
+    wss.emit('connection', ws, request);
+  });
+});
 const wss = new WebSocket.Server({ server });
 const interpreter = "./bland"; // Path to your interpreter binary
 
